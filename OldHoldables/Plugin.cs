@@ -12,7 +12,8 @@ namespace OldHoldables
     public class Plugin : BaseUnityPlugin
     {
         bool init = false;
-        Enum[] oldZone = new Enum[6];
+        // since we're changing every storedZone we can find let's create an array so we can save all of them in one place
+        Enum[] oldZone = new Enum[10];
         void Start()
         {
             Utilla.Events.GameInitialized += OnGameInitialized;
@@ -39,6 +40,7 @@ namespace OldHoldables
         
         async void HoldableToggle()
         {
+            // wait a few seconds for the game to give you your cosmetics first. just to be safe
             if (init == true)
             {
                 Debug.Log("looks like i'm being called by utilla init, let's wait a little longer for cosmetics to load first since ongameinitialized isnt enough");
@@ -46,21 +48,28 @@ namespace OldHoldables
                 init = false;
             }
 
+            // this is the position we are in the array we defined earlier
+            // we'll want to start from the top each time since we want to either save or rewrite all of the cosmetics at once
             byte oldZonePosition = 0;
             Debug.Log("reset oldZonePosition to 0");
+            // doing enabled inside foreach here checks the behavior status of the transferrableobjects themselves
+            // so we have to define this first in the context of the plugin and not of the transferrableobjects (i think)
             bool pluginEnabled = enabled;
             Debug.Log("going through transferrable objects. plugin status appears to be: " + pluginEnabled);
             foreach (TransferrableObject transferrableObject in UnityEngine.Object.FindObjectsOfType<TransferrableObject>())
             {
                 if (pluginEnabled == true && transferrableObject.IsMyItem() && transferrableObject.storedZone != BodyDockPositions.DropPositions.Chest)
                 {
+                    // go through all of the storedzones and write them down
                     oldZone[oldZonePosition] = transferrableObject.storedZone;
                     Debug.Log("tried to save zone. it is: " + oldZone[oldZonePosition]);
                     oldZonePosition += 1;
+                    // set all of the storedzones to none so the cosmetics stick
                     transferrableObject.storedZone = BodyDockPositions.DropPositions.None;
                 }
                 if (pluginEnabled == false && transferrableObject.IsMyItem() && transferrableObject.storedZone != BodyDockPositions.DropPositions.Chest && (BodyDockPositions.DropPositions)oldZone[0] != BodyDockPositions.DropPositions.None)
                 {
+                    // use the array we wrote into when the plugin was enabled to put everything back to how it was :)
                     transferrableObject.storedZone = (BodyDockPositions.DropPositions)oldZone[oldZonePosition];
                     Debug.Log("tried to set zone to: " + oldZone[oldZonePosition]);
                     oldZonePosition += 1;
