@@ -36,8 +36,6 @@ namespace OldHoldables
             init = true;
             HoldableToggle();
         }
-        
-        
         async void HoldableToggle()
         {
             // wait a few seconds for the game to give you your cosmetics first. just to be safe
@@ -49,7 +47,7 @@ namespace OldHoldables
             }
 
             // this is the position we are in the array we defined earlier
-            // we'll want to start from the top each time since we want to either save or rewrite all of the cosmetics at once
+            // we'll want to start from the top each time since we want to either save or rewrite all of the stored zones at once
             byte oldZonePosition = 0;
             Debug.Log("reset oldZonePosition to 0");
             // doing enabled inside foreach here checks the behavior status of the transferrableobjects themselves
@@ -62,8 +60,9 @@ namespace OldHoldables
                 {
                     // go through all of the storedzones and write them down
                     oldZone[oldZonePosition] = transferrableObject.storedZone;
-                    Debug.Log("tried to save zone. it is: " + oldZone[oldZonePosition]);
+                    Debug.Log("tried to save a zone. it is at: " + oldZone[oldZonePosition]);
                     oldZonePosition += 1;
+                    
                     // set all of the storedzones to none so the cosmetics stick
                     transferrableObject.storedZone = BodyDockPositions.DropPositions.None;
                 }
