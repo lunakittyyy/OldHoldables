@@ -58,17 +58,17 @@ namespace OldHoldables
             {
                 if (pluginEnabled == true && transferrableObject.IsMyItem() && transferrableObject.storedZone != BodyDockPositions.DropPositions.Chest)
                 {
-                    // go through all of the storedzones and write them down
+                    // save the storedzone we're on and increment the position of the array for the next transferrableobject
                     oldZone[oldZonePosition] = transferrableObject.storedZone;
                     Debug.Log("tried to save a zone. it is at: " + oldZone[oldZonePosition]);
                     oldZonePosition += 1;
                     
-                    // set all of the storedzones to none so the cosmetics stick
+                    // set the storedzone we're on to none so the cosmetic sticks
                     transferrableObject.storedZone = BodyDockPositions.DropPositions.None;
                 }
                 if (pluginEnabled == false && transferrableObject.IsMyItem() && transferrableObject.storedZone != BodyDockPositions.DropPositions.Chest && (BodyDockPositions.DropPositions)oldZone[0] != BodyDockPositions.DropPositions.None)
                 {
-                    // use the array we wrote into when the plugin was enabled to put everything back to how it was :)
+                    // use the array we wrote into when the plugin was enabled to put the cosmetic back to how it was :)
                     transferrableObject.storedZone = (BodyDockPositions.DropPositions)oldZone[oldZonePosition];
                     Debug.Log("tried to set zone to: " + oldZone[oldZonePosition]);
                     oldZonePosition += 1;
