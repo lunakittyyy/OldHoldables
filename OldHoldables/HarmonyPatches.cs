@@ -41,8 +41,10 @@ namespace OldHoldables
         {
             static void Postfix(ref bool __result)
             {
-                __result = false;
-                
+                if (__result == true)
+                {
+                    __result = false;
+                }
             }
         }
 
@@ -51,7 +53,10 @@ namespace OldHoldables
         {
             static void Postfix(ref bool __result)
             {
-                __result = false;
+                if (__result == true)
+                {
+                    __result = false;
+                }
             }
 
         }
