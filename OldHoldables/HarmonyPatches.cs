@@ -2,18 +2,16 @@
 using System;
 using System.Reflection;
 
+
 namespace OldHoldables
 {
-    /// <summary>
-    /// This class handles applying harmony patches to the game.
-    /// You should not need to modify this class.
-    /// </summary>
     public class HarmonyPatches
     {
         private static Harmony instance;
 
         public static bool IsPatched { get; private set; }
         public const string InstanceId = PluginInfo.GUID;
+        public bool HoldablesAreSticky = false;
 
         internal static void ApplyHarmonyPatches()
         {
@@ -37,5 +35,26 @@ namespace OldHoldables
                 IsPatched = false;
             }
         }
+
+        [HarmonyPatch(typeof(TransferrableObject), "IsHeld")]
+        class HoldingPatch
+        {
+            static void Postfix(ref bool __result)
+            {
+                __result = false;
+                
+            }
+        }
+
+        [HarmonyPatch(typeof(EquipmentInteractor), "GetIsHolding")]
+        class RopeBombsYouWantItItsYoursMyFriendAsLongAsYouHaveEnoughRupies
+        {
+            static void Postfix(ref bool __result)
+            {
+                __result = false;
+            }
+
+        }
+
     }
 }
