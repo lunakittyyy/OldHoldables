@@ -10,8 +10,8 @@ namespace OldHoldables
         private static Harmony instance;
 
         public static bool IsPatched { get; private set; }
+        // public static bool CosmeticAboutToChange { get; private set; }
         public const string InstanceId = PluginInfo.GUID;
-        public bool HoldablesAreSticky = false;
 
         internal static void ApplyHarmonyPatches()
         {
@@ -58,8 +58,6 @@ namespace OldHoldables
                     __result = false;
                 }
             }
-
         }
-
     }
 }
