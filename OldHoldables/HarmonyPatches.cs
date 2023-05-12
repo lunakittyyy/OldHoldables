@@ -1,5 +1,7 @@
-﻿using HarmonyLib;
+﻿using GorillaNetworking;
+using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 
@@ -10,7 +12,7 @@ namespace OldHoldables
         private static Harmony instance;
 
         public static bool IsPatched { get; private set; }
-        // public static bool CosmeticAboutToChange { get; private set; }
+
         public const string InstanceId = PluginInfo.GUID;
 
         internal static void ApplyHarmonyPatches()
@@ -39,25 +41,43 @@ namespace OldHoldables
         [HarmonyPatch(typeof(TransferrableObject), "IsHeld")]
         class HoldingPatch
         {
-            static void Postfix(ref bool __result)
+            static bool Prefix(ref bool __result)
             {
-                if (__result == true)
-                {
-                    __result = false;
-                }
+                __result = false;
+                return false;
             }
         }
 
         [HarmonyPatch(typeof(EquipmentInteractor), "GetIsHolding")]
-        class RopeBombsYouWantItItsYoursMyFriendAsLongAsYouHaveEnoughRupies
+        class RopeHoldingPatch
         {
-            static void Postfix(ref bool __result)
+            static bool Prefix(ref bool __result)
             {
-                if (__result == true)
+                __result = false;
+                return false;
+            }
+        }
+        /*
+        [HarmonyPatch(typeof(CosmeticsController), "ApplyCosmeticItemToSet")]
+        class UnpatchBeforeChangingHoldables
+        {
+            MethodInfo OriginalHolding = typeof(TransferrableObject).GetMethod("IsHeld");
+            MethodInfo OriginalRopeHolding = typeof(EquipmentInteractor).GetMethod("GetIsHolding");
+            void Prefix()
+            {
+                instance.Unpatch(OriginalHolding, HarmonyPatchType.Prefix);
+                instance.Unpatch(OriginalRopeHolding, HarmonyPatchType.Prefix);
+            }
+
+            void Postfix()
+            {
+                if (IsPatched)
                 {
-                    __result = false;
+                    instance.PatchAll(typeof(HoldingPatch));
+                    instance.PatchAll(typeof(RopeHoldingPatch));
                 }
             }
         }
+        */
     }
 }
