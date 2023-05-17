@@ -12,6 +12,7 @@ namespace OldHoldables
         private static Harmony instance;
 
         public static bool IsPatched { get; private set; }
+        public static bool SetGoingToChange { get; set; }
 
         public const string InstanceId = PluginInfo.GUID;
 
@@ -43,8 +44,12 @@ namespace OldHoldables
         {
             static bool Prefix(ref bool __result)
             {
-                __result = false;
-                return false;
+                if (!SetGoingToChange)
+                {
+                    __result = false;
+                    return false;
+                }
+                return true;
             }
         }
 
@@ -53,31 +58,29 @@ namespace OldHoldables
         {
             static bool Prefix(ref bool __result)
             {
-                __result = false;
-                return false;
+                if (!SetGoingToChange)
+                {
+                    __result = false;
+                    return false;
+                }
+                return true;
             }
         }
-        /*
+
         [HarmonyPatch(typeof(CosmeticsController), "ApplyCosmeticItemToSet")]
-        class UnpatchBeforeChangingHoldables
+        class ReleaseBeforeChangingHoldables
         {
-            MethodInfo OriginalHolding = typeof(TransferrableObject).GetMethod("IsHeld");
-            MethodInfo OriginalRopeHolding = typeof(EquipmentInteractor).GetMethod("GetIsHolding");
-            void Prefix()
+            static void Prefix()
             {
-                instance.Unpatch(OriginalHolding, HarmonyPatchType.Prefix);
-                instance.Unpatch(OriginalRopeHolding, HarmonyPatchType.Prefix);
+                SetGoingToChange = true;
+                EquipmentInteractor.instance.ReleaseLeftHand();
+                EquipmentInteractor.instance.ReleaseRightHand();
             }
 
-            void Postfix()
+            static void Postfix()
             {
-                if (IsPatched)
-                {
-                    instance.PatchAll(typeof(HoldingPatch));
-                    instance.PatchAll(typeof(RopeHoldingPatch));
-                }
+                SetGoingToChange = false;
             }
         }
-        */
     }
 }
