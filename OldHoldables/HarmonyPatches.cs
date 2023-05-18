@@ -1,9 +1,6 @@
 ﻿using GorillaNetworking;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
-
 
 namespace OldHoldables
 {
@@ -49,7 +46,10 @@ namespace OldHoldables
                     __result = false;
                     return false;
                 }
-                return true;
+                else
+                {
+                    return true;
+                }
             }
         }
 
@@ -63,7 +63,10 @@ namespace OldHoldables
                     __result = false;
                     return false;
                 }
-                return true;
+                else
+                {
+                    return true;
+                }
             }
         }
 
@@ -82,5 +85,6 @@ namespace OldHoldables
                 SetGoingToChange = false;
             }
         }
+
     }
 }
