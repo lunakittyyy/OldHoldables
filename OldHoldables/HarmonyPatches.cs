@@ -63,7 +63,6 @@ namespace OldHoldables
             {
                 if (__instance.leftHandHeldEquipment != null && __instance.rightHandHeldEquipment != null)
                 {
-                    Debug.Log("pass");
                     foreach (InteractionPoint item in isLeftHand ? __instance.overlapInteractionPointsLeft : __instance.overlapInteractionPointsRight)
                     {
                         if (item != null && item.parentTransferrableObject != null)
@@ -202,6 +201,5 @@ namespace OldHoldables
                 SetGoingToChange = false;
             }
         }
-
     }
 }
