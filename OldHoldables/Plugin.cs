@@ -31,8 +31,9 @@ namespace OldHoldables
                 EquipmentInteractor.instance.ReleaseLeftHand();
                 EquipmentInteractor.instance.ReleaseRightHand();
                 HarmonyPatches.SetGoingToChange = false;
-                // ratelimit manual redocking. don't know if this is needed
-                // but obviously holdables are networked so lets restrict this to only happen every three seconds or more
+                // ratelimit manual redocking.
+                // needed to prevent spamming snowballs, also prolly just a good idea to ratelimit networked objects in general
+                // especially when we're making things behave differently than usual
                 DropTime = Time.time;
             }
         }
