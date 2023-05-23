@@ -32,7 +32,7 @@ namespace OldHoldables
                 EquipmentInteractor.instance.ReleaseRightHand();
                 HarmonyPatches.SetGoingToChange = false;
                 // ratelimit manual redocking. don't know if this is needed
-                // but obviously holdables are networked objects so lets restrict this to only happen every three seconds at max
+                // but obviously holdables are networked so lets restrict this to only happen every three seconds or more
                 DropTime = Time.time;
             }
         }
