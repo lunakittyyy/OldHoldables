@@ -3,6 +3,7 @@ using HarmonyLib;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit;
 
 // TODO: Limit classes, although not totally necessary atm.
 namespace OldHoldables
@@ -38,9 +39,10 @@ namespace OldHoldables
             }
         }
 
-        public static bool SetGoingToChange { get; set; }
-        public static bool HoldQueue { get; set; }
-        public static bool HoverLeft { get; set; }
+        public static bool SetGoingToChange;
+  
+        public static bool HoldQueue;
+        public static bool HoverLeft;
 
         [HarmonyPatch(typeof(TransferrableObject), "IsHeld")]
         class HoldingPatch
@@ -115,18 +117,24 @@ namespace OldHoldables
                         __instance.OnGrab(__instance.gripInteractor, HoverLeft ? EquipmentInteractor.instance.leftHand : EquipmentInteractor.instance.rightHand);
                     }
                 }
-                else if (__instance.IsMyItem() && __instance.TryGetComponent(out Slingshot _) && __instance.InHand())
+                else if (__instance.IsMyItem() && __instance.TryGetComponent(out Slingshot _) && __instance.currentState != TransferrableObject.PositionState.OnChest)
                 {
                     bool pickUpLeft = hoveringHand == EquipmentInteractor.instance.leftHand;
                     if (pickUpLeft && __instance.InRightHand())
                     {
-                        SetGoingToChange = true;
-                        EquipmentInteractor.instance.ReleaseLeftHand();
+                        if (!EquipmentInteractor.instance.leftHandHeldEquipment.TryGetComponent(out SnowballThrowable _))
+                        {
+                            SetGoingToChange = true;
+                            EquipmentInteractor.instance.ReleaseLeftHand();
+                        }
                     }
                     else if (!pickUpLeft && __instance.InLeftHand())
                     {
-                        SetGoingToChange = true;
-                        EquipmentInteractor.instance.ReleaseRightHand();
+                        if (!EquipmentInteractor.instance.rightHandHeldEquipment.TryGetComponent(out SnowballThrowable _))
+                        {
+                            SetGoingToChange = true;
+                            EquipmentInteractor.instance.ReleaseRightHand();
+                        }
                     }
                 }
             }
@@ -197,6 +205,72 @@ namespace OldHoldables
             }
 
             static void Postfix()
+            {
+                SetGoingToChange = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(EquipmentInteractor), "LateUpdate")]
+        public class EquipmentUpdate
+        {
+            private static int PressAmountLeft;
+            private static int PressAmountRight;
+            private static float LastTimeLeft;
+            private static float LastTimeRight;
+            private static bool PressLeft;
+            private static bool PressRight;
+
+            public static void Prefix(EquipmentInteractor __instance)
+            {
+                bool leftValue = ControllerInputPoller.instance.leftControllerGripFloat >= __instance.grabThreshold;
+                bool rightValue = ControllerInputPoller.instance.rightControllerGripFloat >= __instance.grabThreshold;
+
+                if (__instance.leftHandHeldEquipment != null)
+                {
+                    if (leftValue && leftValue != PressLeft)
+                    {
+                        if (PressAmountLeft == 0) LastTimeLeft = Time.time + 0.4f;
+                        PressAmountLeft++;
+
+                        if (PressAmountLeft >= 2)
+                        {
+                            SetGoingToChange = true;
+                            __instance.ReleaseLeftHand();
+                        }
+                    }
+                }
+
+                if (__instance.rightHandHeldEquipment != null)
+                {
+                    if (rightValue && rightValue != PressRight)
+                    {
+                        if (PressAmountRight == 0) LastTimeRight = Time.time + 0.4f;
+                        PressAmountRight++;
+
+                        if (PressAmountRight >= 2)
+                        {
+                            SetGoingToChange = true;
+                            __instance.ReleaseRightHand();
+                        }
+                    }
+                }
+
+                PressLeft = leftValue;
+                PressRight = rightValue;
+
+                if (Time.time >= LastTimeLeft)
+                {
+                    LastTimeLeft = Time.time + 0.4f;
+                    PressAmountLeft = 0;
+                }
+                if (Time.time >= LastTimeRight)
+                {
+                    LastTimeRight = Time.time + 0.4f;
+                    PressAmountRight = 0;
+                }
+            }
+
+            public static void Postfix()
             {
                 SetGoingToChange = false;
             }
