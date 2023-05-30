@@ -4,6 +4,6 @@
     {
         public const string GUID = "com.luna.gorillatag.oldholdables";
         public const string Name = "OldHoldables";
-        public const string Version = "2.2.2";
+        public const string Version = "2.3.0";
     }
 }

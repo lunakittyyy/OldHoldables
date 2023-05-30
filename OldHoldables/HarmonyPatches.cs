@@ -49,7 +49,7 @@ namespace OldHoldables
         {
             static bool Prefix(TransferrableObject __instance, ref bool __result)
             {
-                if (__instance.TryGetComponent(out Slingshot _)) return true;
+                if (__instance.TryGetComponent(out Slingshot _) || __instance.TryGetComponent(out ThrowableBug _)) return true;
                 else
                 {
                     if (!SetGoingToChange) __result = false;
