@@ -5,4 +5,4 @@
 
 # Known issues
 - Some game updates appear to make the autodrop system for the slingshots throw errors. We can take out the autodropping and just ignore slingshots in the sticking code if for a quick hack but we should probably do a proper fix
- - Doesn't seem to actually cause any problems? 🤷‍♀️
+  - Doesn't seem to actually cause any problems? 🤷‍♀️
