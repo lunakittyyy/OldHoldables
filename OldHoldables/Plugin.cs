@@ -1,68 +1,63 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
+using GorillaNetworking;
+using HarmonyLib;
 using System.IO;
 using UnityEngine;
 using UnityEngine.XR;
+using Valve.VR;
+using Utilla;
+using System;
 
 namespace OldHoldables
 {
     [BepInPlugin(PluginInfo.GUID, PluginInfo.Name, PluginInfo.Version)]
+    [BepInDependency("org.legoandmars.gorillatag.utilla", "1.5.0")]
     public class Plugin : BaseUnityPlugin
     {
-        
-        static ConfigEntry<bool> useLeftStick;
         static ConfigEntry<bool> disableDropping;
+        bool IsSteamVR;
+        bool initialized = false;
+
+        void Awake() => Utilla.Events.GameInitialized += GameInitialized;
+
+        void GameInitialized(object sender, EventArgs e)
+        {
+            IsSteamVR = Traverse.Create(PlayFabAuthenticator.instance).Field("platform").GetValue().ToString().ToLower() == "steam";
+            initialized = true;
+        }
 
         void OnEnable()
         {
             HarmonyPatches.ApplyHarmonyPatches();
 
             ConfigFile customFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "OldHoldables.cfg"), true);
-            useLeftStick = customFile.Bind("Input", "UseLeftStick", false, "Use the Left stick to drop holdables instead of the right.");
-            disableDropping = customFile.Bind("Input", "DisableDropping", false, "Turn off manual dropping altogether. Not recommended!");
+            disableDropping = customFile.Bind("Input", "DisableDropping", false, "Turn off manual dropping altogether. Not recommended, but may be needed for Index controllers");
         }
 
-        void OnDisable()
-        {
-            HarmonyPatches.RemoveHarmonyPatches();
-        }
+        void OnDisable() => HarmonyPatches.RemoveHarmonyPatches();
 
-        private static XRNode rNode = XRNode.RightHand;
-        private static XRNode lNode = XRNode.LeftHand;
         public static bool RightStickClick = false;
-        public static bool LeftStickClick = false;
         private float DropTime;
 
         void LateUpdate()
         {
-            InputDevice rightController = InputDevices.GetDeviceAtXRNode(rNode);
-            rightController.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out RightStickClick);
-
-            InputDevice leftController = InputDevices.GetDeviceAtXRNode(lNode);
-            leftController.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out LeftStickClick);
+            if (!initialized) return;
+            
+            if (IsSteamVR)
+                RightStickClick = SteamVR_Actions.gorillaTag_RightJoystickClick.GetState(SteamVR_Input_Sources.RightHand);
+            else
+                ControllerInputPoller.instance.rightControllerDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out RightStickClick);
 
             if (!disableDropping.Value) 
-            {
-                if (LeftStickClick && useLeftStick.Value == true && (DropTime + 3) < Time.time)
-                {
-                    DropManually();
-                }
-                else if (RightStickClick && useLeftStick.Value != true && (DropTime + 3) < Time.time)
-                {
-                    DropManually();
-                }
-            }
+                if (RightStickClick && (DropTime + 3) < Time.time) { DropManually(); }
         }
-
         void DropManually()
         {
             HarmonyPatches.SetGoingToChange = true;
             EquipmentInteractor.instance.ReleaseLeftHand();
             EquipmentInteractor.instance.ReleaseRightHand();
             HarmonyPatches.SetGoingToChange = false;
-            // ratelimit manual redocking.
-            // needed to prevent spamming snowballs, also prolly just a good idea to ratelimit networked objects in general
-            // especially when we're making things behave differently than usual
             DropTime = Time.time;
         }
     }

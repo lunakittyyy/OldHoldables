@@ -2,7 +2,7 @@
 <Project>
 	<!-- :3 -->
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
-		<GamePath>C:\Program Files\Oculus\Software\Software\another-axiom-gorilla-tag</GamePath>
+		<GamePath>C:\Program Files (x86)\Steam\steamapps\common\Gorilla Tag</GamePath>
 		<GameAssemblyPath>$(GamePath)\Gorilla Tag_Data\Managed</GameAssemblyPath>
 		<BepInExAssemblyPath>$(GamePath)\BepInEx\core</BepInExAssemblyPath>
 		<PluginsPath>$(GamePath)\BepInEx\plugins</PluginsPath>
