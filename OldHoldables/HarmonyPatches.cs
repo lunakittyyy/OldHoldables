@@ -1,8 +1,7 @@
 ﻿using GorillaNetworking;
+using GorillaTagScripts;
 using HarmonyLib;
 using System.Reflection;
-using UnityEngine;
-using UnityEngine.XR;
 
 // TODO: Limit classes, although not totally necessary atm.
 namespace OldHoldables
@@ -48,7 +47,10 @@ namespace OldHoldables
         {
             static bool Prefix(TransferrableObject __instance, ref bool __result)
             {
-                if (__instance.TryGetComponent(out Slingshot _) || __instance.TryGetComponent(out ThrowableBug _) || __instance.TryGetComponent(out ThrowableSetDressing _)) return true;
+                if (__instance.TryGetComponent(out Slingshot _) || 
+                    __instance.TryGetComponent(out ThrowableBug _) || 
+                    __instance.TryGetComponent(out ThrowableSetDressing _) ||
+                    __instance.TryGetComponent(out DecorativeItem _)) return true;
                 else
                 {
                     if (!SetGoingToChange) __result = false;
