@@ -4,6 +4,6 @@
     {
         public const string GUID = "luna.oldholdables";
         public const string Name = "OldHoldables";
-        public const string Version = "2.4.2";
+        public const string Version = "2.4.3";
     }
 }

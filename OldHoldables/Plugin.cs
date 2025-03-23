@@ -6,7 +6,6 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.XR;
 using Valve.VR;
-using Utilla;
 using System;
 
 namespace OldHoldables
@@ -19,9 +18,12 @@ namespace OldHoldables
         bool IsSteamVR;
         bool initialized = false;
 
-        void Awake() => Utilla.Events.GameInitialized += GameInitialized;
+        void Awake()
+        {
+            GorillaTagger.OnPlayerSpawned(GameInitialized);
+        }
 
-        void GameInitialized(object sender, EventArgs e)
+        void GameInitialized()
         {
             IsSteamVR = Traverse.Create(PlayFabAuthenticator.instance).Field("platform").GetValue().ToString().ToLower() == "steam";
             initialized = true;
@@ -30,9 +32,7 @@ namespace OldHoldables
         void OnEnable()
         {
             HarmonyPatches.ApplyHarmonyPatches();
-
-            ConfigFile customFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "OldHoldables.cfg"), true);
-            disableDropping = customFile.Bind("Input", "DisableDropping", false, "Turn off manual dropping altogether. Not recommended, but may be needed for Index controllers");
+            disableDropping = Config.Bind("Input", "DisableDropping", false, "Turn off manual dropping altogether. Not recommended, but may be needed for Index controllers");
         }
 
         void OnDisable() => HarmonyPatches.RemoveHarmonyPatches();
@@ -49,8 +49,10 @@ namespace OldHoldables
             else
                 ControllerInputPoller.instance.rightControllerDevice.TryGetFeatureValue(CommonUsages.primary2DAxisClick, out RightStickClick);
 
-            if (!disableDropping.Value) 
+            if (!disableDropping.Value)
+            {
                 if (RightStickClick && (DropTime + 3) < Time.time) { DropManually(); }
+            }
         }
         void DropManually()
         {

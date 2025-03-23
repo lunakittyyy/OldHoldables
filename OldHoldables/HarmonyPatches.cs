@@ -1,4 +1,6 @@
-﻿using GorillaNetworking;
+﻿using System;
+using System.Collections.Generic;
+using GorillaNetworking;
 using GorillaTagScripts;
 using HarmonyLib;
 using System.Reflection;
@@ -51,11 +53,8 @@ namespace OldHoldables
                     __instance.TryGetComponent(out ThrowableBug _) || 
                     __instance.TryGetComponent(out ThrowableSetDressing _) ||
                     __instance.TryGetComponent(out DecorativeItem _)) return true;
-                else
-                {
-                    if (!SetGoingToChange) __result = false;
-                    return SetGoingToChange;
-                }
+                if (!SetGoingToChange) __result = false;
+                return SetGoingToChange;
             }
         }
 
@@ -76,7 +75,7 @@ namespace OldHoldables
             }
         }
 
-        [HarmonyPatch(typeof(CosmeticsController), "ApplyCosmeticItemToSet")]
+        [HarmonyPatch(typeof(CosmeticsController), "ApplyCosmeticItemToSet", new Type[] { typeof(CosmeticsController.CosmeticSet), typeof(CosmeticsController.CosmeticItem), typeof(bool) , typeof(bool), typeof(List<CosmeticsController.CosmeticSlots>) })]
         class ReleaseBeforeChangingHoldables
         {
             static void Prefix()
