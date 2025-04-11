@@ -40,7 +40,7 @@ namespace OldHoldables
         }
 
         public static bool SetGoingToChange;
-  
+
         public static bool HoldQueue;
         public static bool HoverLeft;
 
@@ -49,12 +49,38 @@ namespace OldHoldables
         {
             static bool Prefix(TransferrableObject __instance, ref bool __result)
             {
-                if (__instance.TryGetComponent(out Slingshot _) || 
-                    __instance.TryGetComponent(out ThrowableBug _) || 
+                if (__instance.TryGetComponent(out Slingshot _) ||
+                    __instance.TryGetComponent(out ThrowableBug _) ||
                     __instance.TryGetComponent(out ThrowableSetDressing _) ||
                     __instance.TryGetComponent(out DecorativeItem _)) return true;
                 if (!SetGoingToChange) __result = false;
                 return SetGoingToChange;
+            }
+        }
+
+        [HarmonyPatch(typeof(TransferrableObject), "OnEnable")]
+        class CosSpawnPatch
+        {
+            static void Postfix(TransferrableObject __instance)
+            {
+                if (!__instance.TryGetComponent(out Slingshot _) ||
+                    !__instance.TryGetComponent(out ThrowableBug _) ||
+                    !__instance.TryGetComponent(out ThrowableSetDressing _) ||
+                    !__instance.TryGetComponent(out DecorativeItem _))
+                {
+
+                    if (__instance.IsMyItem())
+                    {
+                        if (__instance.currentState == TransferrableObject.PositionState.OnLeftArm)
+                        {
+                            __instance.currentState = TransferrableObject.PositionState.InRightHand;
+                        }
+                        if (__instance.currentState == TransferrableObject.PositionState.OnRightArm)
+                        {
+                            __instance.currentState = TransferrableObject.PositionState.InLeftHand;
+                        }
+                    }
+                }
             }
         }
 
@@ -75,7 +101,7 @@ namespace OldHoldables
             }
         }
 
-        [HarmonyPatch(typeof(CosmeticsController), "ApplyCosmeticItemToSet", new Type[] { typeof(CosmeticsController.CosmeticSet), typeof(CosmeticsController.CosmeticItem), typeof(bool) , typeof(bool), typeof(List<CosmeticsController.CosmeticSlots>) })]
+        [HarmonyPatch(typeof(CosmeticsController), "ApplyCosmeticItemToSet", new Type[] { typeof(CosmeticsController.CosmeticSet), typeof(CosmeticsController.CosmeticItem), typeof(bool), typeof(bool), typeof(List<CosmeticsController.CosmeticSlots>) })]
         class ReleaseBeforeChangingHoldables
         {
             static void Prefix()
